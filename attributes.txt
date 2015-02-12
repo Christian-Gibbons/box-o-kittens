@@ -1,2 +1,6 @@
 art:
 http://opengameart.org/content/sara-16x18
+http://opengameart.org/content/cat-sprites
+http://opengameart.org/content/cat-sfx
+http://opengameart.org/content/base-character-spritesheet-16x16
+http://opengameart.org/content/post-soviet-tileset

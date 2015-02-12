@@ -35,6 +35,7 @@ window.onload = function() {
 
 		game.load.image('tiles', 'assets/tilemaps/tiles/PostSovietTile.png');
 		game.load.spritesheet('cat-lady', 'assets/spritesheets/sara_16x18.png', 16, 18);
+		game.load.spritesheet('person', 'assets/spritesheets/Hero.png', 16, 16);
 		game.load.image('kitten', 'assets/spritesheets/catsprite.png');
 		game.load.audio('cat1', 'assets/sounds/cat/Cat 1.wav');
 		game.load.audio('cat2', 'assets/sounds/cat/Cat 2.wav');
@@ -55,11 +56,16 @@ window.onload = function() {
 	var kitten;
 	var throwTime = 0;
 	var meows = [];
+	var people;
+	var person;
 
 	var cursors;
 	var jumpButton;
 	var playerDirection;
 
+	var time;
+	var display;
+	var gameOver = 0;
 
 	function create() {
 
@@ -85,6 +91,15 @@ window.onload = function() {
 		for(var i=1; i<=8; i++){
 			meows.push(game.add.audio('cat' + i));
 		}
+
+		people = game.add.group();
+		people.enableBody = true;
+		people.physicsBodyType = Phaser.Physics.ARCADE;
+		for(var i=0; i<20; i++){
+			person = people.create(16 * Math.floor((Math.random() * 100)), game.world.height - (16*Math.floor((Math.random() * 8)+4)), 'person', i%24);
+		}
+
+
 		kittens = game.add.group();
 		kittens.enableBody  = true;
 		kittens.physicsBodyType = Phaser.Physics.ARCADE;
@@ -94,6 +109,9 @@ window.onload = function() {
 		kittens.setAll('outOfBoundsKill', true);
 		kittens.setAll('checkWorldBounds', true);
 		kittens.setAll('body.gravity.y', 400);
+
+
+
 
 		player = game.add.sprite(16*6, game.world.height - 64, 'cat-lady');
 		player.anchor.setTo(0.5,0.5);
@@ -118,7 +136,9 @@ window.onload = function() {
 
 	function update(){
 		game.physics.arcade.collide(player, layer2);
-		//var tempVel = player.body.velocity.x;
+
+		game.physics.arcade.overlap(kittens, people, killPerson, null, this);
+
 		if(player.body.onFloor()){
 			player.body.velocity.x = 0;
 		}
@@ -180,6 +200,12 @@ window.onload = function() {
 		{
 			player.body.velocity.y = -200;
 		}
+
+		if(people.total === 0 && !gameOver){
+			time = game.time.now;
+			gameOver = 1;
+			display = game.add.text(game.camera.position.x - 125, game.camera.position.y - 300, 'time: ' + time/1000 + ' seconds', { fontSize: '32px', fill: '#000' });
+		}
 	}
 
 	function throwKitten(){
@@ -199,8 +225,14 @@ window.onload = function() {
 					kitten.body.velocity.x = player.body.velocity.x + 250;
 				}
 				kitten.body.velocity.y = player.body.velocity.y -120;
-				throwTime = game.time.now + 400;
+				throwTime = game.time.now + 500;
 			}
 		}
+	}
+
+	function killPerson(kitten, person){
+
+		person.kill();
+		kitten.kill();
 	}
 }
