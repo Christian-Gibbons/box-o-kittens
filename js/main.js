@@ -49,11 +49,11 @@ function create() {
 
     //  The first parameter is the tileset name, as specified in the Tiled map editor (and in the tilemap json file)
     //  The second parameter maps this name to the Phaser.Cache key 'tiles'
-    map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
+    map.addTilesetImage('Post Soviet', 'tiles');
     
     //  Creates a layer from the World1 layer in the map data.
     //  A Layer is effectively like a Phaser.Sprite, so is added to the display list.
-    layer = map.createLayer('World1');
+    layer = map.createLayer('test layer');
 
     //  This resizes the game world to match the layer dimensions
     layer.resizeWorld();
