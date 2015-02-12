@@ -34,7 +34,7 @@ window.onload = function() {
 		//  Next we load the tileset. This is just an image, loaded in via the normal way we load images:
 
 		game.load.image('tiles', 'assets/tilemaps/tiles/PostSovietTile.png');
-		game.load.spritesheet('cat-lady', '/home/christian/phaser/box-o-kittens/assets/spritesheets/sara_16x18.png', 16, 18);
+		game.load.spritesheet('cat-lady', 'assets/spritesheets/sara_16x18.png', 16, 18);
 	}
 
 	var map;
