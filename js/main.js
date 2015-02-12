@@ -35,6 +35,15 @@ window.onload = function() {
 
 		game.load.image('tiles', 'assets/tilemaps/tiles/PostSovietTile.png');
 		game.load.spritesheet('cat-lady', 'assets/spritesheets/sara_16x18.png', 16, 18);
+		game.load.image('kitten', 'assets/spritesheets/catsprite.png');
+		game.load.audio('cat1', 'assets/sounds/cat/Cat 1.wav');
+		game.load.audio('cat2', 'assets/sounds/cat/Cat 2.wav');
+		game.load.audio('cat3', 'assets/sounds/cat/Cat 3.wav');
+		game.load.audio('cat4', 'assets/sounds/cat/Cat 4.wav');
+		game.load.audio('cat5', 'assets/sounds/cat/Cat 5.wav');
+		game.load.audio('cat6', 'assets/sounds/cat/Cat 6.wav');
+		game.load.audio('cat7', 'assets/sounds/cat/Cat 7.wav');
+		game.load.audio('cat8', 'assets/sounds/cat/Cat 8.wav');
 	}
 
 	var map;
@@ -42,6 +51,15 @@ window.onload = function() {
 	var layer2;
 
 	var player;
+	var kittens;
+	var kitten;
+	var throwTime = 0;
+	var meows = [];
+
+	var cursors;
+	var jumpButton;
+	var playerDirection;
+
 
 	function create() {
 
@@ -64,6 +82,19 @@ window.onload = function() {
 		game.physics.arcade.enable(layer2);
 		map.setCollisionByExclusion([],true,layer2);
 
+		for(var i=1; i<=8; i++){
+			meows.push(game.add.audio('cat' + i));
+		}
+		kittens = game.add.group();
+		kittens.enableBody  = true;
+		kittens.physicsBodyType = Phaser.Physics.ARCADE;
+		kittens.createMultiple(30, 'kitten');
+		kittens.setAll('anchor.x', 0.5);
+		kittens.setAll('anchor.y', 0.5);
+		kittens.setAll('outOfBoundsKill', true);
+		kittens.setAll('checkWorldBounds', true);
+		kittens.setAll('body.gravity.y', 400);
+
 		player = game.add.sprite(16*6, game.world.height - 64, 'cat-lady');
 		player.anchor.setTo(0.5,0.5);
 
@@ -72,10 +103,104 @@ window.onload = function() {
 		player.body.gravity.y = 800;
 		player.body.collideWorldBounds = true;
 
-		player.animations.add('walk', [9, 10, 11], 10, true);
+		player.animations.add('walk_right', [9, 10, 11], 10, true);
+		player.animations.add('walk_left', [27, 28, 29], 10, true);
+		player.animations.add('throw_right', [15, 12, 9], 6, false);
+		player.animations.add('throw_left', [33, 30, 27], 6, false);
+
+		cursors = game.input.keyboard.createCursorKeys();
+		jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+		game.camera.follow(player);
+		game.camera.deadzone = new Phaser.Rectangle(100,100,250,400);
+
 	}
 
 	function update(){
 		game.physics.arcade.collide(player, layer2);
+		//var tempVel = player.body.velocity.x;
+		if(player.body.onFloor()){
+			player.body.velocity.x = 0;
+		}
+		if (cursors.up.isDown)
+		{
+			if(game.time.now > throwTime){
+				if(playerDirection === 'right'){
+					player.animations.play('throw_right',null, false);
+				}
+				else{
+					player.animations.play('throw_left', null, false);
+				}
+				throwKitten();
+			}
+		}
+		else if (cursors.left.isDown && player.body.onFloor())
+		{
+			//  Move to the left
+			playerDirection = 'left';
+			player.body.velocity.x = -150;
+
+//			player.scale.x = 1;
+//			if(player.body.onFloor()){
+				player.animations.play('walk_left');
+//			}
+//			else{
+//				player.animations.stop();
+//				player.frame = 0; 
+//			}
+		}
+		else if (cursors.right.isDown && player.body.onFloor())
+		{
+			//  Move to the right
+			player.body.velocity.x = 150;
+			playerDirection = 'right';
+//			player.scale.x = -1;
+//			if(player.body.onFloor()){
+				player.animations.play('walk_right');
+//			}
+//			else{
+//				player.animations.stop();
+//				player.frame = 0; 
+//			}
+		}
+
+		else
+		{
+			if(!(player.animations.currentAnim === player.animations.getAnimation('throw_right'))||(player.animations.currentAnim === player.animations.getAnimation('throw_left'))){
+				
+				player.animations.stop();
+				player.frame = 27;
+				if(playerDirection === 'right'){
+					player.frame = 9;
+				}
+			}
+		}
+		// Allow player to jump if they are touching the ground.
+		if (jumpButton.isDown && player.body.onFloor())
+		{
+			player.body.velocity.y = -200;
+		}
+	}
+
+	function throwKitten(){
+		if(game.time.now > throwTime){
+			kitten = kittens.getFirstExists(false);
+			if(kitten){
+				var rand = Math.floor((Math.random() * 16));
+				if(rand <8){
+					meows[rand].play();
+				}
+				if(playerDirection === 'left'){
+					kitten.reset(player.x - 8, player.y -9);
+					kitten.body.velocity.x = player.body.velocity.x -250;
+				}
+				else{
+					kitten.reset(player.x + 8, player.y -9);
+					kitten.body.velocity.x = player.body.velocity.x + 250;
+				}
+				kitten.body.velocity.y = player.body.velocity.y -120;
+				throwTime = game.time.now + 400;
+			}
+		}
 	}
 }
