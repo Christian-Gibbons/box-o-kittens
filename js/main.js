@@ -83,7 +83,7 @@ window.onload = function() {
 		layer2 = map.createLayer('collision');
 
 		layer1.resizeWorld();
-		layer2.resizeWorld();
+		layer2.visible = false;
 
 		game.physics.arcade.enable(layer2);
 		map.setCollisionByExclusion([],true,layer2);
